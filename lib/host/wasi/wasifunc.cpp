@@ -2581,6 +2581,39 @@ Expect<uint32_t> WasiSockBind::body(Runtime::Instance::MemoryInstance *MemInst, 
   return __WASI_ERRNO_SUCCESS;
 }
 
+Expect<uint32_t> WasiSockConnect::body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
+                        uint32_t AddressStringPtr, uint32_t AddressStringLen){
+  /// Check memory instance from module.
+  if (MemInst == nullptr || Fd < 0) {
+    return __WASI_ERRNO_FAULT;
+  }
+
+  char *const AddrString =
+        MemInst->getPointer<char *>(AddressStringPtr, sizeof(char *));
+
+  std::string address_and_port(AddrString, AddressStringLen);
+  std::stringstream ss(address_and_port);
+  std::string address, port;
+  getline(ss, address, ':');
+  getline(ss, port);
+
+  struct sockaddr_in myaddr;
+  myaddr.sin_family = AF_INET;
+  myaddr.sin_port = htons(stoi(port));
+  if(inet_aton(address.c_str(), &myaddr.sin_addr) < 0){
+    return __WASI_ERRNO_FAULT;
+  }
+
+  int result = connect(Fd, (struct sockaddr*)&myaddr, sizeof(myaddr));
+  spdlog::error("connect: {0}:{1} result: {2}", address, port, result); 
+
+  if (unlikely(result < 0)) {
+    return convertErrNo(errno);
+  }
+
+  return __WASI_ERRNO_SUCCESS;
+}
+
 Expect<uint32_t> WasiSockRecv::body(Runtime::Instance::MemoryInstance *MemInst,
                                     int32_t Fd, uint32_t RiDataPtr,
                                     int32_t RiDataLen, uint32_t RiFlags,
@@ -2768,60 +2801,20 @@ Expect<uint32_t> WasiSockSend::body(Runtime::Instance::MemoryInstance *MemInst,
     return __WASI_ERRNO_INVAL;
   }
 
-  const auto Entry = Env.getFile(Fd);
-  if (unlikely(Entry == Env.getFileEnd())) {
-    return __WASI_ERRNO_BADF;
-  }
-
-  if (unlikely(!Entry->second.checkRights(__WASI_RIGHTS_FD_WRITE))) {
-    return __WASI_ERRNO_NOTCAPABLE;
-  }
-
-  /// Check for invalid address.
-  __wasi_ciovec_t *const SiDataArray =
-      MemInst->getPointer<__wasi_ciovec_t *>(SiDataPtr, SiDataLen);
-  if (unlikely(SiDataArray == nullptr)) {
-    return __WASI_ERRNO_FAULT;
-  }
-
   int32_t *const SoDataLen = MemInst->getPointer<int32_t *>(SoDataLenPtr);
   if (unlikely(SoDataLen == nullptr)) {
     return __WASI_ERRNO_FAULT;
   }
-
-  uint32_t TotalSize = 0;
-  iovec SysSiData[kIOVSMax];
-
-  for (uint32_t I = 0; I < static_cast<uint32_t>(SiDataLen); ++I) {
-    __wasi_ciovec_t &SiData = SiDataArray[I];
-
-    /// Check for total size overflow.
-    const uint32_t Overflow = std::numeric_limits<int32_t>::max() - TotalSize;
-    if (unlikely(SiData.buf_len > Overflow)) {
-      return __WASI_ERRNO_INVAL;
-    }
-    TotalSize += SiData.buf_len;
-
-    void *const SiDataArr =
-        MemInst->getPointer<uint8_t *>(SiData.buf, SiData.buf_len);
-    /// Check for invalid address.
-    if (unlikely(SiDataArr == nullptr)) {
-      return __WASI_ERRNO_FAULT;
-    }
-    SysSiData[I].iov_base = SiDataArr;
-    SysSiData[I].iov_len = SiData.buf_len;
+  /// Check for invalid address.
+  char *const SiData =
+      MemInst->getPointer<char *>(SiDataPtr, SiDataLen);
+  if (unlikely(SiData == nullptr)) {
+    return __WASI_ERRNO_FAULT;
   }
 
-  msghdr SysMsgHdr;
-  SysMsgHdr.msg_name = nullptr;
-  SysMsgHdr.msg_namelen = 0;
-  SysMsgHdr.msg_iov = SysSiData;
-  SysMsgHdr.msg_iovlen = SiDataLen;
-  SysMsgHdr.msg_control = nullptr;
-  SysMsgHdr.msg_controllen = 0;
+  spdlog::error("send: SiData = {0}, SiDataLen = {1}", SiData, SiDataLen); 
 
-  /// Store send bytes length and flags.
-  *SoDataLen = sendmsg(Entry->second.HostFd, &SysMsgHdr, 0);
+  *SoDataLen = send(Fd, SiData, SiDataLen, SiFlags);
 
   if (unlikely(*SoDataLen < 0)) {
     return convertErrNo(errno);
@@ -2829,6 +2822,9 @@ Expect<uint32_t> WasiSockSend::body(Runtime::Instance::MemoryInstance *MemInst,
 
   return __WASI_ERRNO_SUCCESS;
 }
+
+
+
 
 Expect<uint32_t> WasiSockSendTo::body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
                         uint32_t SiDataPtr, int32_t SiDataLen, uint32_t AddressPtr,
