@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "common/defines.h"
 #include "interpreter/interpreter.h"
 #include "system/fault.h"
 
@@ -34,7 +35,7 @@ struct Interpreter::ProxyHelper<Expect<RetT> (Interpreter::*)(
 
 /// Intrinsics table
 extern "C" {
-__attribute__((visibility("default")))
+WASMEDGE_SYMBOL_EXPORT
 AST::Module::IntrinsicsTable intrinsics = {
 #define ENTRY(NAME, FUNC)                                                      \
   [uint8_t(AST::Module::Intrinsics::NAME)] = reinterpret_cast<void *>(         \

@@ -24,3 +24,11 @@
     (defined(__APPLE__) && defined(__MACH__))
 #define WASMEDGE_OS_MACOS 1
 #endif
+
+#define WASMEDGE_ATTRIBUTE_WEAK [[gnu::weak]]
+
+#ifdef WASMEDGE_OS_WINDOWS
+#define WASMEDGE_SYMBOL_EXPORT [[gnu::dllexport]]
+#else
+#define WASMEDGE_SYMBOL_EXPORT [[gnu::visibility("default")]]
+#endif

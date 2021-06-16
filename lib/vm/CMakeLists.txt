@@ -12,5 +12,4 @@ target_link_libraries(wasmedgeVM
   wasmedgeValidator
   wasmedgeInterpreter
   wasmedgeHostModuleWasi
-  wasmedgeHostModuleWasmEdgeProcess
 )

@@ -13,6 +13,7 @@ target_include_directories(wasmedgeHostModuleWasi
 
 target_link_libraries(wasmedgeHostModuleWasi
   PUBLIC
+  wasmedgePlugin
   Threads::Threads
   Boost::boost
   wasmedgeSystem

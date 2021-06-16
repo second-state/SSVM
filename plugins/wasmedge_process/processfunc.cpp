@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-#include "host/wasmedge_process/processfunc.h"
+#include "processfunc.h"
 
 #include <errno.h>
 #include <fcntl.h>
