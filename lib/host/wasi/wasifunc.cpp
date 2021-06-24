@@ -2524,7 +2524,7 @@ Expect<uint32_t> WasiSockOpen::body(Runtime::Instance::MemoryInstance *MemInst, 
     return convertErrNo(errno);
   }
 
-  spdlog::error("open socket fd: {0}", Fd); 
+  spdlog::debug("open socket fd: {0}", Fd); 
 
   __wasi_fd_t *const RoFd =
         MemInst->getPointer<__wasi_fd_t *>(RoFdPtr, sizeof(__wasi_fd_t));
@@ -2568,12 +2568,10 @@ Expect<uint32_t> WasiSockBind::body(Runtime::Instance::MemoryInstance *MemInst, 
   server_socket_addr.sin_family = AF_INET;
   server_socket_addr.sin_addr.s_addr = INADDR_ANY;
   server_socket_addr.sin_port = htons(stoi(port));
-  // if(inet_aton(AddrString, &server_socket_addr.sin_addr) < 0){
-  //   return __WASI_ERRNO_FAULT;
-  // }
+
 
   int result = bind(Fd, (struct sockaddr*)&server_socket_addr, sizeof(server_socket_addr));
-  spdlog::error("bind: {0}:{1} result: {2}", address, port, result); 
+  spdlog::debug("bind: {0}:{1} result: {2}", address, port, result); 
 
   if (unlikely(result < 0)) {
     return convertErrNo(errno);
@@ -2589,7 +2587,7 @@ Expect<uint32_t> WasiSockListen::body(Runtime::Instance::MemoryInstance *MemInst
   }
 
   int result = listen(Fd, Backlog);
-  spdlog::error("listen: {0} {1}", Fd, Backlog); 
+  spdlog::debug("listen: {0} {1}", Fd, Backlog); 
 
   if (unlikely(result < 0)) {
     return convertErrNo(errno);
@@ -2598,8 +2596,7 @@ Expect<uint32_t> WasiSockListen::body(Runtime::Instance::MemoryInstance *MemInst
   return __WASI_ERRNO_SUCCESS;
 }
 
-Expect<uint32_t> WasiSockAccept::body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
-                        uint32_t AddressStringPtr, uint32_t AddressStringLen, uint32_t RoFdPtr){
+Expect<uint32_t> WasiSockAccept::body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd, uint32_t RoFdPtr){
   /// Check memory instance from module.
   if (MemInst == nullptr || Fd < 0) {
     return __WASI_ERRNO_FAULT;
@@ -2615,7 +2612,7 @@ Expect<uint32_t> WasiSockAccept::body(Runtime::Instance::MemoryInstance *MemInst
 
   unsigned int clilen = sizeof(server_socket_addr);
   *RoFd = accept(Fd, (struct sockaddr*)&server_socket_addr, &clilen);
-  spdlog::error("accept: {0} result: {1}", Fd, *RoFd); 
+  spdlog::debug("accept: {0} result: {1}", Fd, *RoFd); 
 
   if (unlikely(*RoFd < 0)) {
     return convertErrNo(errno);
@@ -2648,7 +2645,7 @@ Expect<uint32_t> WasiSockConnect::body(Runtime::Instance::MemoryInstance *MemIns
   }
 
   int result = connect(Fd, (struct sockaddr*)&client_socket_addr, sizeof(client_socket_addr));
-  spdlog::error("connect: {0}:{1} result: {2}", address, port, result); 
+  spdlog::debug("connect: {0}:{1} result: {2}", address, port, result); 
 
   if (unlikely(result < 0)) {
     return convertErrNo(errno);
@@ -2682,7 +2679,7 @@ Expect<uint32_t> WasiSockRecv::body(Runtime::Instance::MemoryInstance *MemInst, 
   }
 
   int return_size = recv(Fd, RiData, RiDataLen, RiFlags);
-  spdlog::error("recv: {} SiData = {}, RiLen = {}, RoLen = {}", Fd, RiData, RiDataLen, return_size); 
+  spdlog::debug("recv: {} RiData = {}, RiDataLen = {}, RoDataLen = {}", Fd, std::string(RiData, RiDataLen), RiDataLen, return_size); 
 
   if (unlikely(return_size < 0)) {
     return convertErrNo(errno);
@@ -2791,7 +2788,7 @@ Expect<uint32_t> WasiSockSend::body(Runtime::Instance::MemoryInstance *MemInst,
     return __WASI_ERRNO_FAULT;
   }
 
-  spdlog::error("send: SiData = {}, SiDataLen = {}", std::string(SiData, SiDataLen), SiDataLen); 
+  spdlog::debug("send: SiData = {}, SiDataLen = {}", std::string(SiData, SiDataLen), SiDataLen); 
   *SoDataLen = send(Fd, SiData, SiDataLen, SiFlags);
 
   if (unlikely(*SoDataLen < 0)) {
@@ -2906,7 +2903,7 @@ WasiSockShutdown::body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
     return convertErrNo(errno);
   }
 
-  spdlog::error("shutdown"); 
+  spdlog::debug("shutdown"); 
   return __WASI_ERRNO_SUCCESS;
 }
 

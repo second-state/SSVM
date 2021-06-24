@@ -481,8 +481,7 @@ class WasiSockAccept : public Wasi<WasiSockAccept> {
 public:
   WasiSockAccept(WasiEnvironment &HostEnv) : Wasi(HostEnv) {}
 
-  Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
-                        uint32_t AddressStringPtr, uint32_t AddressStringLen, uint32_t RoFdPtr);
+  Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd, uint32_t RoFdPtr);
 };
 
 class WasiSockConnect : public Wasi<WasiSockConnect> {
