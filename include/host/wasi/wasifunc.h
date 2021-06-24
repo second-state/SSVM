@@ -469,6 +469,22 @@ public:
                         uint32_t AddressStringPtr, uint32_t AddressStringLen);
 };
 
+class WasiSockListen : public Wasi<WasiSockListen> {
+public:
+  WasiSockListen(WasiEnvironment &HostEnv) : Wasi(HostEnv) {}
+
+  Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd, uint32_t Backlog);
+};
+
+
+class WasiSockAccept : public Wasi<WasiSockAccept> {
+public:
+  WasiSockAccept(WasiEnvironment &HostEnv) : Wasi(HostEnv) {}
+
+  Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
+                        uint32_t AddressStringPtr, uint32_t AddressStringLen, uint32_t RoFdPtr);
+};
+
 class WasiSockConnect : public Wasi<WasiSockConnect> {
 public:
   WasiSockConnect(WasiEnvironment &HostEnv) : Wasi(HostEnv) {}
@@ -483,7 +499,7 @@ public:
 
   Expect<uint32_t> body(Runtime::Instance::MemoryInstance *MemInst, int32_t Fd,
                         uint32_t RiDataPtr, int32_t RiDataLen, uint32_t RiFlags,
-                        uint32_t RoDataLenPtr, uint32_t RoFlagsPtr);
+                        uint32_t RoDataLenPtr);
 };
 
 class WasiSockRecvFrom : public Wasi<WasiSockRecvFrom> {
