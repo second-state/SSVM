@@ -29,7 +29,7 @@ jobs:
           apt update
           apt install -y ninja-build
         fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON .
+        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DWASMEDGE_BUILD_TESTS=ON .
         cmake --build build
 
     - name: Test WasmEdge
@@ -52,7 +52,7 @@ jobs:
           apt update
           apt install -y ninja-build
         fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .
+        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DWASMEDGE_BUILD_TESTS=ON .
         cmake --build build
 
     - name: Test WasmEdge
@@ -75,7 +75,7 @@ jobs:
           apt update
           apt install -y ninja-build
         fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON .
+        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DWASMEDGE_BUILD_TESTS=ON .
         cmake --build build
 
     - name: Test WasmEdge
@@ -98,7 +98,7 @@ jobs:
           apt update
           apt install -y ninja-build
         fi
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .
+        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Release -DWASMEDGE_BUILD_TESTS=ON .
         cmake --build build
 
     - name: Test WasmEdge
@@ -126,7 +126,7 @@ jobs:
 
     - name: Build WasmEdge using gcc with Debug mode
       run: |
-        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON .
+        cmake -Bbuild -GNinja -DCMAKE_BUILD_TYPE=Debug -DWASMEDGE_BUILD_TESTS=ON -DWASMEDGE_BUILD_COVERAGE=ON .
         cmake --build build
 
     - name: Generate coverage report
