@@ -1,37 +1,37 @@
 # SPDX-License-Identifier: Apache-2.0
 
-add_executable(wasmedgeLoaderFileMgrTests
+wasmedge_add_executable(wasmedgeLoaderFileMgrTests
   filemgrTest.cpp
 )
 
 add_test(wasmedgeLoaderFileMgrTests wasmedgeLoaderFileMgrTests)
 
-add_executable(wasmedgeLoaderWagonTests
+wasmedge_add_executable(wasmedgeLoaderWagonTests
   wagonTest.cpp
 )
 
 add_test(wasmedgeLoaderWagonTests wasmedgeLoaderWagonTests)
 
-add_executable(wasmedgeLoaderEthereumTests
+wasmedge_add_executable(wasmedgeLoaderEthereumTests
   ethereumTest.cpp
 )
 
 add_test(wasmedgeLoaderEthereumTests wasmedgeLoaderEthereumTests)
 
-configure_files(
+file(COPY
   ${CMAKE_CURRENT_SOURCE_DIR}/filemgrTestData
-  ${CMAKE_CURRENT_BINARY_DIR}/filemgrTestData
-  COPYONLY
+  DESTINATION
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
-configure_files(
+file(COPY
   ${CMAKE_CURRENT_SOURCE_DIR}/wagonTestData
-  ${CMAKE_CURRENT_BINARY_DIR}/wagonTestData
-  COPYONLY
+  DESTINATION
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
-configure_files(
+file(COPY
   ${CMAKE_CURRENT_SOURCE_DIR}/ethereumTestData
-  ${CMAKE_CURRENT_BINARY_DIR}/ethereumTestData
-  COPYONLY
+  DESTINATION
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(wasmedgeLoaderFileMgrTests
